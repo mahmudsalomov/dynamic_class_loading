@@ -16,8 +16,14 @@ public class TestClass implements InMemoryClass {
         return "test";
     }
 
+    public static void main(String[] args) {
+        long s1 = System.currentTimeMillis();
+        tubFinder(100000);
+        long s2 = System.currentTimeMillis();
+        System.out.println(s2 - s1);
+    }
 
-    public void tubFinder(int limit) {
+    public static void tubFinder(int limit) {
         for (int i = 2; i <= limit; i++) {
             int count = 0;
             for (int j = 1; j <= i; j++) {

@@ -28,7 +28,7 @@ package uz.maniac4j.dynamic_class_loading.dynamic;//package uz.liti.main_service
 //            DynamicCompiler dynamicCompiler=new DynamicCompiler();
 //            File compiledFile = dynamicCompiler.compile(javaCode);
 //
-//            DynamicClassLoader classLoader = new DynamicClassLoader(new URL[]{compiledFile.toURI().toURL()});
+//            CustomDynamicClassLoader classLoader = new CustomDynamicClassLoader(new URL[]{compiledFile.toURI().toURL()});
 //            Class<?> clazz = classLoader.loadClassFromFile(compiledFile);
 //
 //            dynamicExecutor.executeMethod(clazz, "test");

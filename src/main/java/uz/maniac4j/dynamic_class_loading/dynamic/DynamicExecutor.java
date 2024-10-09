@@ -33,6 +33,14 @@ public class DynamicExecutor {
     }
 
 
+    public Object executeMethod(Class<?> clazz, String methodName, Object arg) throws Exception {
+        Object instance = clazz.getDeclaredConstructor().newInstance();
+
+        Method method = clazz.getMethod(methodName, arg.getClass());
+
+        return method.invoke(instance, arg);
+    }
+
 
     public Object executeDynamicClassWithBeans(Class<?> clazz) throws Exception {
 

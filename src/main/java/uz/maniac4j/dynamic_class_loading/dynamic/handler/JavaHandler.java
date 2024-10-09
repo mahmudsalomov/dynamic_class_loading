@@ -3,9 +3,11 @@ package uz.maniac4j.dynamic_class_loading.dynamic.handler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.mdkt.compiler.DynamicClassLoader;
 import org.springframework.stereotype.Service;
 import uz.maniac4j.dynamic_class_loading.dynamic.DynamicCompiler;
 import uz.maniac4j.dynamic_class_loading.dynamic.DynamicExecutor;
+import uz.maniac4j.dynamic_class_loading.dynamic.TestDto;
 import uz.maniac4j.dynamic_class_loading.dynamic.TestObject;
 import uz.maniac4j.dynamic_class_loading.dynamic.new_test.InMemoryClass;
 import uz.maniac4j.dynamic_class_loading.dynamic.new_test.InMemoryFileManager;
@@ -41,7 +43,7 @@ public class JavaHandler {
         this.dynamicCompiler = dynamicCompiler;
 
         compiler = ToolProvider.getSystemJavaCompiler();
-        manager = new InMemoryFileManager(compiler.getStandardFileManager(null, null, null));
+        manager = new InMemoryFileManager(compiler.getStandardFileManager(null, null, null), new DynamicClassLoader(Thread.currentThread().getContextClassLoader()));
         diagnostics = new DiagnosticCollector<>();
     }
 
@@ -57,14 +59,16 @@ public class JavaHandler {
 
             CachedScript cachedScript = compiledClassCache.get("1");
 
+            TestDto testDto = new TestDto("Alkash", 10);
+
             if (cachedScript != null && cachedScript.hashCode.equals(hashCode(code))) {
-                execute = dynamicExecutor.executeMethod(cachedScript.clazz, "execute");
+                execute = dynamicExecutor.executeMethod(cachedScript.clazz, "execute2", testDto);
             } else {
 
 //                Class<?> clazz = dynamicCompiler.compileAndLoad("Script" + scriptId, code);
-                Class<?> clazz = dynamicCompiler.compileAndLoad(code);
+                Class<?> clazz = dynamicCompiler.compileAndLoad(Thread.currentThread().getContextClassLoader(), code);
 
-                execute = dynamicExecutor.executeMethod(clazz, "execute");
+                execute = dynamicExecutor.executeMethod(clazz, "execute2", testDto);
 
                 compiledClassCache.put("1", new CachedScript(clazz, hashCode(code)));
 
@@ -83,37 +87,36 @@ public class JavaHandler {
     }
 
 
-
-    public TestObject execute2(String code) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        TestObject testObject = new TestObject();
-        ByteArrayOutputStream consoleOutput = new ByteArrayOutputStream();
-        PrintStream originalOut = System.out;
-        Object execute = null;
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        InMemoryFileManager manager = new InMemoryFileManager(compiler.getStandardFileManager(null, null, null));
-
-        List<JavaFileObject> sourceFiles = Collections.singletonList(new JavaSourceFromString("uz.maniac4j.dynamic_class_loading.dynamic.MyClass", code));
-
-        JavaCompiler.CompilationTask task = compiler.getTask(null, manager, diagnostics, null, null, sourceFiles);
-
-        boolean result = task.call();
-
-        if (!result) {
-            diagnostics.getDiagnostics()
-                    .forEach(System.out::println);
-        } else {
-            ClassLoader classLoader = manager.getClassLoader(null);
-            Class<?> clazz = classLoader.loadClass("uz.maniac4j.dynamic_class_loading.dynamic.MyClass");
-            InMemoryClass instanceOfClass = (InMemoryClass) clazz.newInstance();
-
-//            Assertions.assertInstanceOf(InMemoryClass.class, instanceOfClass);
-
-            execute=instanceOfClass.execute();
-        }
-        testObject.setObject(execute);
-        return testObject;
-    }
+//    public TestObject execute2(String code) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+//        TestObject testObject = new TestObject();
+//        ByteArrayOutputStream consoleOutput = new ByteArrayOutputStream();
+//        PrintStream originalOut = System.out;
+//        Object execute = null;
+//        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+//        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+//        InMemoryFileManager manager = new InMemoryFileManager(compiler.getStandardFileManager(null, null, null));
+//
+//        List<JavaFileObject> sourceFiles = Collections.singletonList(new JavaSourceFromString("uz.maniac4j.dynamic_class_loading.dynamic.MyClass", code));
+//
+//        JavaCompiler.CompilationTask task = compiler.getTask(null, manager, diagnostics, null, null, sourceFiles);
+//
+//        boolean result = task.call();
+//
+//        if (!result) {
+//            diagnostics.getDiagnostics()
+//                    .forEach(System.out::println);
+//        } else {
+//            ClassLoader classLoader = manager.getClassLoader(null);
+//            Class<?> clazz = classLoader.loadClass("uz.maniac4j.dynamic_class_loading.dynamic.MyClass");
+//            InMemoryClass instanceOfClass = (InMemoryClass) clazz.newInstance();
+//
+////            Assertions.assertInstanceOf(InMemoryClass.class, instanceOfClass);
+//
+//            execute=instanceOfClass.execute();
+//        }
+//        testObject.setObject(execute);
+//        return testObject;
+//    }
 
 
     private static String hashCode(String code) throws Exception {

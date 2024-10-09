@@ -4,10 +4,10 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class DynamicClassLoader extends URLClassLoader {
+public class CustomDynamicClassLoader extends URLClassLoader {
 
 
-    public DynamicClassLoader(URL[] urls) {
+    public CustomDynamicClassLoader(URL[] urls) {
         super(urls);
     }
 
